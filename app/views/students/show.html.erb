@@ -1,0 +1,11 @@
+<h2><%= @student.name %></h2>
+<p id="notice"><%= notice %></p>
+
+<p>
+  <strong>Grade level:</strong>
+  <%= @student.grade_level.name %> Grade
+</p>
+
+<%= link_to 'Grades', student_grades_path(@student) %> |
+<%= link_to 'Edit', edit_student_path(@student) %> |
+<%= link_to 'Back', students_path %>

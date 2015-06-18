@@ -1,0 +1,6 @@
+<%= form_tag do %>
+    <%= label_tag :year, 'School Year' %>
+    <%= select_tag :year, options_for_select([Time.now.year]) %>
+
+
+<% end %>
