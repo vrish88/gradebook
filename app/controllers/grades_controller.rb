@@ -1,40 +1,21 @@
 class GradesController < ApplicationController
   def create
-    attributes = params.require(:grade).permit!
+    attributes = params.require(:grade)
+                   .permit!
+                   .merge(year: params[:year_id], student_id: params[:student_id])
 
-    gpa = attributes.delete(:gpa).to_f
-    if gpa > 3
-      letter = 'A'
-    elsif gpa > 1
-      letter = 'D'
-    end
+    create_command = rom.command(:grade_years).as(:grade_year).create
+    grade_year = create_command.call(attributes)
 
-    grade = Grade.find_by_letter(letter)
-    year = GradeYear.create!(
-      student_id: params[:student_id],
-      gpa: gpa,
-      grade_id: grade.id,
-      year: params[:year_id]
-    )
-
-    render status: :created,
-           json: {
-             id: year.id,
-             letter: letter,
-             gpa: gpa
-           }
+    render json: grade_year, status: :created
   end
 
   def index
-    grade_years = GradeYear.where(student_id: params[:student_id])
+    grade_years = rom.relation(:grade_years).for_student_id(params[:student_id]).as(:grade_year).to_a
     grades_by_year = grade_years.each_with_object({}) do |grade_year, hash|
-      grade = Grade.find(grade_year.grade_id)
-      hash[grade_year.year] = {
-        id: grade_year.id,
-        gpa: grade_year.gpa,
-        letter: grade.letter,
-      }
+      hash[grade_year.year] = grade_year.as_json
     end
+
     render json: grades_by_year
   end
 end
