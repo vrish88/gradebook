@@ -11,10 +11,12 @@ class GradesController < ApplicationController
   end
 
   def index
-    grade_years = rom.relation(:grade_years).for_student_id(params[:student_id]).as(:grade_year).to_a
-    grades_by_year = grade_years.each_with_object({}) do |grade_year, hash|
-      hash[grade_year.year] = grade_year.as_json
-    end
+    grades_by_year = rom
+                       .relation(:grade_years)
+                       .for_student_id(params[:student_id])
+                       .as(:grades_by_year)
+                       .call
+                       .collection
 
     render json: grades_by_year
   end
